@@ -13,7 +13,7 @@ use Perinci::CmdLine::Any;
 our %SPEC;
 $SPEC{parse_ini} = {
     v => 1.1,
-    summary => 'Parse IOD using Config::IOD module and show the raw result',
+    summary => 'Parse INI and show the raw result',
     description => <<'_',
 
 Mostly only useful for developer for debugging purposes.
