@@ -1,0 +1,48 @@
+#!perl
+
+# DATE
+# VERSION
+
+use 5.010;
+use strict;
+use warnings;
+
+use App::INIUtils;
+use Perinci::CmdLine::Any;
+
+our %SPEC;
+$SPEC{parse_ini} = {
+    v => 1.1,
+    summary => 'Parse IOD using Config::IOD module and show the raw result',
+    description => <<'_',
+
+Mostly only useful for developer for debugging purposes.
+
+_
+    args => {
+        %App::INIUtils::args_common,
+        %App::INIUtils::arg_parser,
+    },
+    result_naked => 1,
+    'cmdline.default_format' => 'json-pretty',
+};
+sub parse_ini {
+    my %args = @_;
+
+    _parse_str($args{ini}, $args{parser});
+}
+
+my $cli = Perinci::CmdLine::Any->new(
+    url => '/main/parse_ini',
+);
+
+$cli->run;
+
+# ABSTRACT:
+# PODNAME:
+
+=head1 SYNOPSIS
+
+Basic usage:
+
+ % parse-ini /path/to/file.ini
