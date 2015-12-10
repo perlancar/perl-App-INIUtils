@@ -20,21 +20,36 @@ our %arg_parser = (
     parser => {
         summary => 'Parser to use',
         schema  => ['str*', {
-            in=>[
+            in => [
                 'Config::INI::Reader',
-                '',
-                '',
-                '',
-                '',
+                'Config::IniFiles',
             ],
         }],
         default => 'Config::INI::Reader',
-        req     => 1,
-        pos     => 0,
-        cmdline_src => 'stdin_or_file',
         tags    => ['common'],
     },
 );
+
+sub _parse_str {
+    my ($ini, $parser) = @_;
+
+    if ($parser eq 'Config::INI::Reader') {
+        require Config::INI::Reader;
+        return Config::INI::Reader->read_string($ini);
+    } elsif ($parser eq 'Config::IniFiles') {
+        require Config::IniFiles;
+        require File::Temp;
+        my ($tempfh, $tempnam) = File::Temp::tempfile();
+        print $tempfh $ini;
+        close $tempfh;
+        my $cfg = Config::IniFiles->new(-file => $tempnam);
+        die join("\n", @Config::IniFiles::errors) unless $cfg;
+        unlink $tempnam;
+        return $cfg;
+    } else {
+        die "Unknown parser '$parser'";
+    }
+}
 
 1;
 # ABSTRACT: INI utilities

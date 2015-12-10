@@ -29,7 +29,7 @@ _
 sub parse_ini {
     my %args = @_;
 
-    _parse_str($args{ini}, $args{parser});
+    App::INIUtils::_parse_str($args{ini}, $args{parser});
 }
 
 my $cli = Perinci::CmdLine::Any->new(
