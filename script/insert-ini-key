@@ -92,6 +92,8 @@ sub insert_ini_key {
 
 Perinci::CmdLine::Any->new(
     url => '/main/insert_ini_key',
+    read_config => 0,
+    read_env => 0,
 )->run;
 
 # ABSTRACT:

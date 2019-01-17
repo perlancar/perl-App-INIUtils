@@ -29,6 +29,8 @@ sub list_ini_sections {
 
 Perinci::CmdLine::Any->new(
     url => '/main/list_ini_sections',
+    read_config => 0,
+    read_env => 0,
 )->run;
 
 # ABSTRACT:

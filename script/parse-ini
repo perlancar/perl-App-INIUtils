@@ -36,6 +36,8 @@ sub parse_ini {
 my $cli = Perinci::CmdLine::Any->new(
     url => '/main/parse_ini',
     pass_cmdline_object => 1,
+    read_config => 0,
+    read_env => 0,
 );
 
 # so help message can be more helpful
