@@ -14,6 +14,18 @@ our %args_common = (
         cmdline_src => 'stdin_or_file',
         tags    => ['common'],
     },
+
+    # only for parser = Config::IOD::INI::Reader
+    default_section => {
+        schema  => 'str*',
+        default => 'GLOBAL',
+        tags    => ['common', 'category:parser'],
+    },
+    allow_duplicate_key => {
+        schema  => 'bool',
+        default => 1,
+        tags    => ['common', 'category:parser'],
+    },
 );
 
 our %arg_parser = (
@@ -30,6 +42,23 @@ our %arg_parser = (
         tags    => ['common'],
     },
 );
+
+sub _get_cii_parser_options {
+    my $args = shift;
+    return (
+        default_section          => $args->{default_section},
+        allow_duplicate_key      => $args->{allow_duplicate_key},
+    );
+}
+
+sub _get_cii_parser {
+    require Config::IOD::INI;
+
+    my $args = shift;
+    Config::IOD::INI->new(
+        _get_cii_parser_options($args),
+    );
+}
 
 sub _parse_str {
     my ($ini, $parser) = @_;

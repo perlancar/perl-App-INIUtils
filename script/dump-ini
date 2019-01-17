@@ -1,0 +1,43 @@
+#!perl
+
+# DATE
+# VERSION
+
+use 5.010;
+use strict;
+use warnings;
+
+use App::INIUtils;
+use Perinci::CmdLine::Any;
+
+our %SPEC;
+$SPEC{dump_ini} = {
+    v => 1.1,
+    summary => 'Dump INI as hash of hashes structure',
+    args => {
+        %App::INIUtils::args_common,
+        %App::INIUtils::arg_parser,
+    },
+    result_naked => 1,
+    'cmdline.default_format' => 'json-pretty',
+};
+sub dump_ini {
+    my %args = @_;
+
+    App::INIUtils::_parse_str($args{ini}, $args{parser});
+}
+
+my $cli = Perinci::CmdLine::Any->new(
+    url => '/main/dump_ini',
+);
+
+$cli->run;
+
+# ABSTRACT:
+# PODNAME:
+
+=head1 SYNOPSIS
+
+Basic usage:
+
+ % dump-ini /path/to/file.ini

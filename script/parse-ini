@@ -13,7 +13,7 @@ use Perinci::CmdLine::Any;
 our %SPEC;
 $SPEC{parse_ini} = {
     v => 1.1,
-    summary => 'Parse INI and show the raw result',
+    summary => 'Parse INI using Config::IOD::INI module and show the raw result',
     description => <<'_',
 
 Mostly only useful for developer for debugging purposes.
@@ -21,7 +21,6 @@ Mostly only useful for developer for debugging purposes.
 _
     args => {
         %App::INIUtils::args_common,
-        %App::INIUtils::arg_parser,
     },
     result_naked => 1,
     'cmdline.default_format' => 'json-pretty',
@@ -29,12 +28,19 @@ _
 sub parse_ini {
     my %args = @_;
 
-    App::INIUtils::_parse_str($args{ini}, $args{parser});
+    my $parser = App::INIUtils::_get_cii_parser(\%args);
+
+    $parser->read_string($args{ini})->{_parsed};
 }
 
 my $cli = Perinci::CmdLine::Any->new(
     url => '/main/parse_ini',
+    pass_cmdline_object => 1,
 );
+
+# so help message can be more helpful
+$cli->common_opts->{format}{default} = 'json-pretty';
+$cli->common_opts->{naked_res}{default} = 1;
 
 $cli->run;
 
