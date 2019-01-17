@@ -1,0 +1,66 @@
+#!perl
+
+# DATE
+# VERSION
+
+use 5.010;
+use strict;
+use warnings;
+no warnings 'once';
+
+use App::INIUtils;
+use Perinci::CmdLine::Any;
+
+our %SPEC;
+$SPEC{delete_ini_key} = {
+    v => 1.1,
+    summary => 'Delete a key from INI configuration file',
+    args => {
+        %App::INIUtils::args_common,
+        %App::INIUtils::arg_inplace,
+        section => {
+            schema  => 'str*',
+            req     => 1,
+            pos     => 1,
+        },
+        key => {
+            schema  => 'str*',
+            req     => 1,
+            pos     => 2,
+        },
+        all => {
+            summary => 'Delete all occurrences instead of just the first',
+            schema => [bool => is=>1],
+        },
+    },
+};
+sub delete_ini_key {
+    my %args = @_;
+    App::INIUtils::_check_inplace(\%args);
+
+    my $parser = App::INIUtils::_get_cii_parser(\%args);
+
+    my $doc = $parser->read_string($args{ini});
+
+    $doc->delete_key(
+        {
+            all     => $args{all},
+        },
+        $args{section}, $args{key},
+    );
+
+    App::INIUtils::_return_mod_result(\%args, $doc);
+}
+
+Perinci::CmdLine::Any->new(
+    url => '/main/delete_ini_key',
+)->run;
+
+# ABSTRACT:
+# PODNAME:
+
+=head1 SYNOPSIS
+
+Basic usage:
+
+ % delete-ini-key /path/to/file.ini section key

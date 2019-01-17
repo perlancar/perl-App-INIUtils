@@ -1,0 +1,41 @@
+#!perl
+
+# DATE
+# VERSION
+
+use 5.010;
+use strict;
+use warnings;
+
+use App::INIUtils;
+use Perinci::CmdLine::Any;
+
+our %SPEC;
+$SPEC{list_ini_sections} = {
+    v => 1.1,
+    summary => 'List all sections of an INI configuration file',
+    args => {
+        %App::INIUtils::args_common,
+    },
+};
+sub list_ini_sections {
+    my %args = @_;
+
+    my $reader = App::INIUtils::_get_ciir_reader(\%args);
+
+    my $hoh = $reader->read_string($args{ini});
+    [200, "OK", [sort keys %$hoh]];
+}
+
+Perinci::CmdLine::Any->new(
+    url => '/main/list_ini_sections',
+)->run;
+
+# ABSTRACT:
+# PODNAME:
+
+=head1 SYNOPSIS
+
+Basic usage:
+
+ % list-ini-sections /path/to/file.ini

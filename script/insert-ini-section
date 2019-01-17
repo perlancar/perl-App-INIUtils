@@ -1,0 +1,88 @@
+#!perl
+
+# DATE
+# VERSION
+
+use 5.010;
+use strict;
+use warnings;
+no warnings 'once';
+
+use App::INIUtils;
+use Perinci::CmdLine::Any;
+
+our %SPEC;
+$SPEC{insert_ini_section} = {
+    v => 1.1,
+    summary => 'Insert an new empty section to INI configuration file',
+    args_rels => {
+        'choose_one&' => [
+            [qw/add ignore/],
+            [qw/top linum/],
+        ],
+    },
+    args => {
+        %App::INIUtils::args_common,
+        %App::INIUtils::arg_inplace,
+        section => {
+            schema  => 'str*',
+            req     => 1,
+            pos     => 1,
+        },
+        add => {
+            summary => 'When section already exists, add another',
+            schema => [bool => is=>1],
+        },
+        ignore => {
+            summary => 'When section already exists, do nothing',
+            schema => [bool => is=>1],
+        },
+        top => {
+            summary => 'Add to the beginning of file instead of end',
+            schema => [bool => is=>1],
+        },
+        comment => {
+            summary => 'Add comment',
+            schema => ['str*'],
+        },
+        linum => {
+            summary => 'Put section line at a specific line number '.
+                '(line number starts from 1)',
+            schema => ['int*' => min=>1],
+        },
+    },
+};
+sub insert_ini_section {
+    my %args = @_;
+    App::INIUtils::_check_inplace(\%args);
+
+    my $parser = App::INIUtils::_get_cii_parser(\%args);
+
+    my $doc = $parser->read_string($args{ini});
+
+    $doc->insert_section(
+        {
+            add     => $args{add},
+            ignore  => $args{ignore},
+            top     => $args{top},
+            comment => $args{comment},
+            linum   => $args{linum},
+        },
+        $args{section},
+    );
+
+    App::INIUtils::_return_mod_result(\%args, $doc);
+}
+
+Perinci::CmdLine::Any->new(
+    url => '/main/insert_ini_section',
+)->run;
+
+# ABSTRACT:
+# PODNAME:
+
+=head1 SYNOPSIS
+
+Basic usage:
+
+ % insert-ini-section /path/to/file.ini section

@@ -1,0 +1,58 @@
+#!perl
+
+# DATE
+# VERSION
+
+use 5.010;
+use strict;
+use warnings;
+
+use App::INIUtils;
+use Perinci::CmdLine::Any;
+
+our %SPEC;
+$SPEC{get_ini_key} = {
+    v => 1.1,
+    summary => 'Get key value from INI configration file',
+    args => {
+        %App::INIUtils::args_common,
+        section => {
+            schema  => 'str*',
+            req     => 1,
+            pos     => 1,
+        },
+        key => {
+            schema  => 'str*',
+            req     => 1,
+            pos     => 2,
+        },
+    },
+};
+sub get_ini_key {
+    my %args = @_;
+
+    my $reader = App::INIUtils::_get_ciir_reader(\%args);
+
+    my $hoh = $reader->read_string($args{ini});
+
+    my $section = $args{section};
+    my $key     = $args{key};
+
+    return [404, "No such section"] unless exists $hoh->{$section};
+    return [404, "No such key"] unless exists $hoh->{$section}{$key};
+
+    [200, "OK", $hoh->{$section}{$key}];
+}
+
+Perinci::CmdLine::Any->new(
+    url => '/main/get_ini_key',
+)->run;
+
+# ABSTRACT:
+# PODNAME:
+
+=head1 SYNOPSIS
+
+Basic usage:
+
+ % get-ini-key /path/to/file.ini section key

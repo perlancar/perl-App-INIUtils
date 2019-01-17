@@ -1,0 +1,50 @@
+#!perl
+
+# DATE
+# VERSION
+
+use 5.010;
+use strict;
+use warnings;
+
+use App::INIUtils;
+use Perinci::CmdLine::Any;
+
+our %SPEC;
+$SPEC{get_ini_section} = {
+    v => 1.1,
+    summary => 'Get whole section of INI configuration file',
+    args => {
+        %App::INIUtils::args_common,
+        section => {
+            schema  => 'str*',
+            req     => 1,
+            pos     => 1,
+        },
+    },
+};
+sub get_ini_section {
+    my %args = @_;
+
+    my $reader = App::INIUtils::_get_ciir_reader(\%args);
+
+    my $hoh = $reader->read_string($args{ini});
+
+    my $section = $args{section};
+
+    return [404, "No such section"] unless exists $hoh->{$section};
+    [200, "OK", $hoh->{$section}];
+}
+
+Perinci::CmdLine::Any->new(
+    url => '/main/get_ini_section',
+)->run;
+
+# ABSTRACT:
+# PODNAME:
+
+=head1 SYNOPSIS
+
+Basic usage:
+
+ % get-ini-section /path/to/file.ini section

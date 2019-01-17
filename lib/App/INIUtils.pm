@@ -43,6 +43,42 @@ our %arg_parser = (
     },
 );
 
+our %arg_inplace = (
+    inplace => {
+        summary => 'Modify file in-place',
+        schema => ['bool', is=>1],
+        description => <<'_',
+
+Note that this can only be done if you specify an actual file and not STDIN.
+Otherwise, an error will be thrown.
+
+_
+    },
+);
+
+sub _check_inplace {
+    my $args = shift;
+    if ($args->{inplace}) {
+        die [412, "To use in-place editing, please supply an actual file"]
+            if @{ $args->{-cmdline_srcfilenames_ini} // []} == 0;
+        die [412, "To use in-place editing, please supply only one file"]
+            if @{ $args->{-cmdline_srcfilenames_ini} // []} > 1;
+    }
+}
+
+sub _return_mod_result {
+    my ($args, $doc) = @_;
+
+    if ($args->{inplace}) {
+        require File::Slurper;
+        File::Slurper::write_text(
+            $args->{-cmdline_srcfilenames_iod}[0], $doc->as_string);
+        [200, "OK"];
+    } else {
+        [200, "OK", $doc->as_string, {'cmdline.skip_format'=>1}];
+    }
+}
+
 sub _get_cii_parser_options {
     my $args = shift;
     return (
@@ -56,6 +92,15 @@ sub _get_cii_parser {
 
     my $args = shift;
     Config::IOD::INI->new(
+        _get_cii_parser_options($args),
+    );
+}
+
+sub _get_ciir_reader {
+    require Config::IOD::INI::Reader;
+
+    my $args = shift;
+    Config::IOD::INI::Reader->new(
         _get_cii_parser_options($args),
     );
 }
