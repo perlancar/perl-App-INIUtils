@@ -1,0 +1,62 @@
+#!perl
+
+# DATE
+# VERSION
+
+use 5.010001;
+use strict;
+use warnings;
+
+use App::INIUtils;
+use App::INIUtils::Common;
+use Perinci::CmdLine::Any;
+
+our %SPEC;
+$SPEC{grep_ini} = {
+    v => 1.1,
+    summary => 'Filter INI using pattern against section/key/value',
+    args => {
+        %App::INIUtils::args_common,
+        %App::INIUtils::Common::args_grep,
+    },
+    result_naked => 1,
+    'cmdline.skip_format' => 1,
+};
+sub grep_ini {
+    my %args = @_;
+
+    my $reader = App::INIUtils::_get_ciir_reader(\%args);
+
+    my $hoh = $reader->read_string($args{ini});
+    $hoh = App::INIUtils::Common::grep_hoh(hoh => $hoh, %args);
+    App::INIUtils::Common::hoh_as_ini($hoh);
+}
+
+my $cli = Perinci::CmdLine::Any->new(
+    url => '/main/grep_ini',
+    read_config => 0,
+    read_env => 0,
+);
+
+$cli->common_opts->{version}{getopt} = 'V';
+
+$cli->run;
+
+# ABSTRACT:
+# PODNAME:
+
+=head1 SYNOPSIS
+
+Examples:
+
+ # only show sections with 'foo' in their name
+ % grep-ini --section foo /path/to/file.ini
+
+ # do not (-v) show sections with 'foo' in their name, do case-insensitive matching (-i)
+ % grep-ini --section foo -iv /path/to/file.ini
+
+ # only show keys with 'foo' in their name
+ % grep-ini --key foo /path/to/file.ini
+
+ # only show values with 'foo' in their name
+ % grep-ini --value foo /path/to/file.ini
