@@ -111,3 +111,5 @@ sub hoh_as_ini {
 
 1;
 # ABSTRACT: Routines common between App::INIUtils and App::IODUtils
+
+=for Pod::Coverage ^(.+)$
