@@ -1,0 +1,57 @@
+#!perl
+
+# DATE
+# VERSION
+
+use 5.010001;
+use strict;
+use warnings;
+
+use App::INIUtils;
+use App::INIUtils::Common;
+use Perinci::CmdLine::Any;
+
+our %SPEC;
+$SPEC{map_ini} = {
+    v => 1.1,
+    summary => 'Modify INI section/key/value using Perl code',
+    args => {
+        %App::INIUtils::args_common,
+        %App::INIUtils::Common::args_map,
+    },
+    result_naked => 1,
+    'cmdline.skip_format' => 1,
+};
+sub map_ini {
+    my %args = @_;
+
+    my $reader = App::INIUtils::_get_ciir_reader(\%args);
+
+    my $hoh = $reader->read_string($args{ini});
+    $hoh = App::INIUtils::Common::map_hoh(hoh => $hoh, %args);
+    App::INIUtils::Common::hoh_as_ini($hoh);
+}
+
+my $cli = Perinci::CmdLine::Any->new(
+    url => '/main/map_ini',
+    read_config => 0,
+    read_env => 0,
+);
+
+$cli->run;
+
+# ABSTRACT:
+# PODNAME:
+
+=head1 SYNOPSIS
+
+Examples:
+
+ # make section names uppercase
+ % map-ini --section '$_ = uc' /path/to/file.ini
+
+ # prepend key name with section name
+ % map-ini --key '$_ = "$SECTION.$_"' /path/to/file.ini
+
+ # prepend value with section and key name
+ % map-ini --value '$_ = "$SECTION.$KEY.$_"' /path/to/file.ini

@@ -33,62 +33,59 @@ our %args_grep = (
     },
 );
 
-sub grep_hoh {
+our %args_map = (
+    section => {
+        schema => 'str*',
+    },
+    key => {
+        schema => 'str*',
+    },
+    value => {
+        schema => 'str*',
+    },
+);
+
+sub map_hoh {
     my %args = @_;
 
-    my $ci = $args{ignore_case};
-    my $invert = $args{invert_match};
-
-    my $section = $args{section}; $section = lc $section if defined $section && $ci;
-    my $key     = $args{key};     $key     = lc $key     if defined $key     && $ci;
-    my $value   = $args{value};   $value   = lc $value   if defined $value   && $ci;
+    my $section = $args{section};
+    my $key     = $args{key};
+    my $value   = $args{value};
 
     my $hoh = $args{hoh};
     my $new_hoh = {};
     for my $s (sort keys %$hoh) {
-        my $match = 1;
-
-        # filter section
+        # map section
+        my $s2 = $s;
         if (defined $section) {
-            if ($ci) {
-                $match = index(lc($s), $section) >= 0;
-            } else {
-                $match = index($s, $section) >= 0;
-            }
+            local $_ = $s; eval "package main; no strict; no warnings; $section"; die if $@;
+            $s2 = $_ if $_ ne $s;
         }
-        $match = !$match if (defined $section && $invert) || $args{invert_match_value};
-        next unless $match;
 
-        $new_hoh->{$s} = {};
+        $new_hoh->{$s2} = {};
 
         my $hash = $hoh->{$s};
         for my $k (sort keys %$hash) {
-            my $match = 1;
-
-            # filter key
+            my $k2 = $k;
+            # map key
             if (defined $key) {
-                if ($ci) {
-                    $match = index(lc($k), $key) >= 0;
-                } else {
-                    $match = index($k, $key) >= 0;
-                }
+                no warnings 'once';
+                local $main::SECTION = $s;
+                local $_ = $k; eval "package main; no strict; no warnings; $key"; die if $@;
+                $k2 = $_ if $_ ne $k;
             }
-            $match = !$match if (defined $key && $invert) || $args{invert_match_key};
-            next unless $match;
-
-            # filter value
+            # map value
             my $v = $hash->{$k};
+            my $v2 = $v;
             if (defined $value) {
-                if ($ci) {
-                    $match = index(lc($v), $value) >= 0;
-                } else {
-                    $match = index($v, $value) >= 0;
-                }
+                no warnings 'once';
+                local $main::SECTION = $s;
+                local $main::KEY     = $k;
+                local $_ = $v; eval "package main; no strict; no warnings; $value"; die if $@;
+                $v2 = $_ if $_ ne $v;
             }
-            $match = !$match if (defined $value && $invert) || $args{invert_match_value};
-            next unless $match;
 
-            $new_hoh->{$s}{$k} = $v;
+            $new_hoh->{$s2}{$k2} = $v2;
         }
     }
     $new_hoh;
