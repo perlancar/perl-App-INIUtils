@@ -21,6 +21,7 @@ our %arg_parser = (
         summary => 'Parser to use',
         schema  => ['str*', {
             in => [
+                'Config::IOD::INI::Reader',
                 'Config::INI::Reader',
                 'Config::IniFiles',
             ],
@@ -36,6 +37,9 @@ sub _parse_str {
     if ($parser eq 'Config::INI::Reader') {
         require Config::INI::Reader;
         return Config::INI::Reader->read_string($ini);
+    } elsif ($parser eq 'Config::IOD::INI::Reader') {
+        require Config::IOD::INI::Reader;
+        return Config::IOD::INI::Reader->new->read_string($ini);
     } elsif ($parser eq 'Config::IniFiles') {
         require Config::IniFiles;
         require File::Temp;
