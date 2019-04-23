@@ -24,7 +24,7 @@ $SPEC{dump_ini} = {
 sub dump_ini {
     my %args = @_;
 
-    App::INIUtils::_parse_str($args{ini}, $args{parser});
+    App::INIUtils::_dump_str($args{ini}, $args{parser});
 }
 
 my $cli = Perinci::CmdLine::Any->new(
