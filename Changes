@@ -1,3 +1,8 @@
+0.034   2019-12-15  Released-By: PERLANCAR; Urgency: medium
+
+	- Add utility: sort-ini-sections.
+
+
 0.033   2019-04-23  Released-By: PERLANCAR
 
 	- Config::IniFiles doesn't need to parse from file; dump-ini:

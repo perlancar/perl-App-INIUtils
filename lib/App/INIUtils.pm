@@ -139,6 +139,9 @@ sub _dump_str {
     $res;
 }
 
+$Sort::Sub::argsopt_sortsub{sort_sub}{cmdline_aliases} = {S=>{}};
+$Sort::Sub::argsopt_sortsub{sort_args}{cmdline_aliases} = {A=>{}};
+
 $SPEC{sort_ini_sections} = {
     v => 1.1,
     summary => '',
